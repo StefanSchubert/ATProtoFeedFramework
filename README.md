@@ -8,6 +8,15 @@ Instead of implementing the ATProto Feed Generator API from scratch for every pr
 
 The framework is intended for developers and organizations that already operate Java-based environments and want to integrate ATProto feed applications into their existing development, deployment and operational workflows.
 
+**Architecture**
+
+```mermaid
+flowchart TD;
+    EventSource["ATProto Event Source"] --> RuleEngine["Rule Engine"];
+    RuleEngine --> FeedIndex["Feed Index"];
+    FeedIndex --> FeedAPI["Feed Generator API"];      
+```
+
 ## About ATProto
 
 ATProto is the open protocol powering Bluesky and related decentralized social networking services.
