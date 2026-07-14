@@ -65,3 +65,7 @@ Contributions, discussions and constructive feedback are welcome once the initia
 ## License
 
 The license will be defined before the first public release.
+
+## Project Documentation
+
+Project documentation is available in the [docs](docs) folder.
