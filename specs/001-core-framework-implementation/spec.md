@@ -10,12 +10,18 @@
 
 ## Clarifications
 
-### Session 2026-07-18
+### Session 2026-07-18 (Initial Ambiguity Analysis)
 
 - Q: **Feed Post Ranking Strategy**: Wie sollen Posts innerhalb eines Feeds sortiert werden? → A: Reverse chronological (newest first)
 - Q: **Event Processing Retry Strategy**: Was soll bei transienten Fehlern während der Event-Verarbeitung passieren? → A: Exponential backoff with 3 retries (1s, 2s, 4s), then dead-letter queue for failed events
 - Q: **Pagination Cursor Lifetime**: Wie lange sollen Paginierungs-Cursor gültig bleiben? → A: 1 hour (short-lived, frequent refreshes)
 - Q: **Default Log Level**: Welches Log-Level soll die Framework-Standardkonfiguration verwenden? → A: INFO (production standard)
+
+### Session 2026-07-18 (Architecture Review Feedback)
+
+- **FeedProvider Capabilities**: Expanded from simple boolean filtering (`shouldInclude(event)`) to full feed selection with ranking support (`selectPosts(FeedContext)`) to support future requirements: ranking algorithms, scoring, context-aware filtering, geodata, topic classification
+- **Java Version Correction**: Updated target from Java 17 to Java 25
+- **Interface-First Architecture**: Clarified that framework design follows interface-first principle (e.g., `EventSource` interface → `JetstreamEventSource` implementation) to ensure proper abstraction layers
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -54,18 +60,18 @@ As a feed developer, I want the framework to automatically connect to an ATProto
 
 ### User Story 3 - Implement Custom Feed Logic (Priority: P1)
 
-As a feed developer, I want to implement a simple FeedProvider interface that defines which posts belong in my feed, so that I can focus on my selection rules without worrying about indexing or API implementation.
+As a feed developer, I want to implement a FeedProvider interface that defines which posts belong in my feed and how they should be ranked, so that I can create unique feed experiences (filtering, scoring, ranking) without worrying about event ingestion, indexing, or API implementation.
 
-**Why this priority**: This is where the developer's custom logic lives - the core value proposition of the framework. Without this, developers cannot create their unique feeds.
+**Why this priority**: This is where the developer's custom logic lives - the core value proposition of the framework. Without this, developers cannot create their unique feeds. The interface must be powerful enough to support future requirements like ranking algorithms, geodata filtering, and topic classification.
 
-**Independent Test**: Can be tested by implementing a simple FeedProvider (e.g., "accept all posts from user X"), registering it with the framework, and verifying that matching posts are selected. Delivers value by proving developers can implement custom feed logic.
+**Independent Test**: Can be tested by implementing a FeedProvider with selection and ranking logic (e.g., "posts from users in Berlin, ranked by recency"), registering it with the framework, and verifying that the feed query returns correctly filtered and ranked posts. Delivers value by proving developers can implement sophisticated feed logic with a simple interface.
 
 **Acceptance Scenarios**:
 
-1. **Given** I implement a FeedProvider with a simple selection rule, **When** I register it with the framework, **Then** the framework accepts and initializes my provider
-2. **Given** my FeedProvider is registered, **When** relevant events arrive, **Then** my selection logic is invoked for each event
-3. **Given** my selection logic returns true for a post, **When** the framework processes the post, **Then** the post reference is indexed for later retrieval
-4. **Given** my FeedProvider throws an exception, **When** processing an event, **Then** the framework logs the error and continues processing other events
+1. **Given** I implement a FeedProvider with custom selection logic, **When** I register it with the framework, **Then** the framework accepts and initializes my provider
+2. **Given** my FeedProvider is registered, **When** a feed query arrives, **Then** my selection logic receives appropriate context (available posts, request parameters)
+3. **Given** my selection logic returns ranked post references, **When** the framework processes the response, **Then** the posts are returned to the client in the correct order
+4. **Given** my FeedProvider throws an exception, **When** processing a request, **Then** the framework logs the error and returns an appropriate error response to the client
 
 ---
 
@@ -137,8 +143,8 @@ As an operator, I want the framework to expose health checks and metrics, so tha
 - **FR-002**: Framework MUST support configuration via external properties files (Spring Boot conventions)
 - **FR-003**: Framework MUST connect to ATProto Jetstream WebSocket event source automatically on startup
 - **FR-004**: Framework MUST receive and deserialize ATProto repository events (commit events for posts)
-- **FR-005**: Framework MUST provide a FeedProvider interface for developers to implement custom feed selection logic
-- **FR-006**: Framework MUST invoke FeedProvider selection logic for each incoming post event
+- **FR-005**: Framework MUST provide a FeedProvider interface for developers to implement custom feed selection and ranking logic
+- **FR-006**: Framework MUST invoke FeedProvider selection logic with appropriate context (feed request parameters, user preferences where applicable)
 - **FR-007**: Framework MUST index post references (ATProto URIs) for posts accepted by FeedProvider logic
 - **FR-008**: Framework MUST expose ATProto Feed Generator API endpoint `/xrpc/app.bsky.feed.getFeedSkeleton`
 - **FR-009**: Framework MUST support pagination in feed queries using cursor-based navigation with posts sorted in reverse chronological order (newest first), where cursors expire after 1 hour
@@ -156,10 +162,13 @@ As an operator, I want the framework to expose health checks and metrics, so tha
 
 ### Key Entities
 
+*Note: These are conceptual entities describing system behavior, not concrete class names. Implementation will follow interface-first architecture (e.g., `EventSource` interface → `JetstreamEventSource` implementation).*
+
 - **EventSource**: Represents the connection to an ATProto event stream (e.g., Jetstream). Manages WebSocket lifecycle, receives repository events, deserializes JSON payloads.
 - **RepositoryEvent**: Internal representation of an ATProto commit event. Contains post URI, author DID, content reference, timestamp.
-- **FeedProvider**: Interface implemented by developers to define feed selection logic. Single method: `boolean shouldInclude(RepositoryEvent event)`.
-- **PostReference**: Indexed representation of a post. Contains post URI, indexed timestamp, optional metadata for ranking.
+- **FeedProvider**: Interface implemented by developers to define feed selection and ranking logic. Core capability: Given feed context (request parameters, indexed posts), return selected and ranked post references. Must support future extensions: scoring algorithms, context-aware filtering, geodata, topic classification.
+- **FeedContext**: Contextual information provided to FeedProvider. Contains feed request parameters (limit, cursor), indexed posts available for selection, optional user preferences for personalization.
+- **PostReference**: Indexed representation of a post. Contains post URI, indexed timestamp, optional metadata for ranking (author, engagement metrics, topic tags).
 - **FeedIndex**: Persistent storage for PostReferences. Supports efficient queries for feed generation (time-ordered reverse chronological, paginated).
 - **FeedRequest**: Incoming query from ATProto client. Contains feed URI, optional limit, optional pagination cursor.
 - **FeedResponse**: ATProto-compliant response. Contains list of post URIs and optional cursor for next page.
@@ -185,12 +194,13 @@ As an operator, I want the framework to expose health checks and metrics, so tha
 - **Event Source**: Initial implementation targets Jetstream as the primary event source. Firehose support is deferred to future releases.
 - **Database**: MariaDB is the reference persistence implementation. Support for other databases (PostgreSQL, MySQL) is achievable through standard JDBC but not explicitly tested initially.
 - **Deployment Environment**: The framework targets containerized deployments (Docker/Kubernetes) with health probes and metrics endpoints.
-- **Java Version**: Framework requires Java 17 or later to align with modern Spring Boot practices.
+- **Java Version**: Framework requires Java 25 to leverage latest JVM performance improvements and language features.
 - **Spring Boot**: Framework uses Spring Boot for dependency injection, configuration, and operational features (actuator endpoints).
 - **Event Volume**: Framework is designed for feeds processing up to 10,000 events per minute. Higher volumes may require additional optimization.
-- **Feed Complexity**: Initial FeedProvider interface assumes stateless selection logic. Stateful feeds (e.g., personalized recommendations) may require additional framework support.
+- **Feed Complexity**: FeedProvider interface is designed for extensibility - supporting simple filtering, ranking algorithms, scoring, context-aware selection, geodata, and topic classification. Initial implementation focuses on core selection capability with clear extension points for advanced features.
 - **Security**: Initial release assumes feed endpoints are publicly accessible. Authentication/authorization for feed queries is deferred to future releases.
 - **Testing**: Framework includes unit tests for core components. Integration tests require local Jetstream and database instances.
 - **Documentation**: Sample application demonstrates the complete developer journey from setup to published feed.
 - **Performance**: Database queries assume proper indexing on post timestamp (descending order for reverse chronological retrieval) and feed ID columns for efficient pagination.
 - **Monitoring**: Operators are expected to configure external monitoring systems (Prometheus, Grafana) to consume exposed metrics.
+- **Architecture Style**: Framework implementation follows interface-first architecture principle. Core abstractions (EventSource, FeedProvider, FeedIndex) are defined as interfaces first, with concrete implementations (e.g., JetstreamEventSource, MariaDBFeedIndex) provided as separate components. This ensures clean separation of concerns and facilitates testing and extensibility.
