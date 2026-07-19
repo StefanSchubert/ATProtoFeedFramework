@@ -15,16 +15,16 @@
 
 **Purpose**: Project initialization and basic Maven structure
 
-- [ ] T001 Create Maven module structure with framework and sample submodules in pom.xml
-- [ ] T002 [P] Configure Java 25 compiler target in pom.xml
-- [ ] T003 [P] Add Spring Boot 4.1.0 parent dependency to pom.xml
-- [ ] T004 [P] Add core dependencies (Spring Data JPA, MariaDB, WebFlux) to pom.xml
-- [ ] T005 [P] Add operational dependencies (Actuator, Micrometer, Log4j2) to pom.xml
-- [ ] T006 [P] Configure JaCoCo plugin with 80% coverage threshold in pom.xml
-- [ ] T007 [P] Configure OWASP dependency check plugin in pom.xml
-- [ ] T008 Create package structure src/main/java/de/bluewhale/atprotofeed/framework/
-- [ ] T009 [P] Create application.yml template with framework defaults in src/main/resources/
-- [ ] T010 [P] Configure Log4j2.xml with structured logging patterns in src/main/resources/
+- [X] T001 Create Maven module structure with framework and sample submodules in pom.xml
+- [X] T002 [P] Configure Java 25 compiler target in pom.xml
+- [X] T003 [P] Add Spring Boot 4.1.0 parent dependency to pom.xml
+- [X] T004 [P] Add core dependencies (Spring Data JPA, MariaDB, WebFlux) to pom.xml
+- [X] T005 [P] Add operational dependencies (Actuator, Micrometer, Log4j2) to pom.xml
+- [X] T006 [P] Configure JaCoCo plugin with 80% coverage threshold in pom.xml
+- [X] T007 [P] Configure OWASP dependency check plugin in pom.xml
+- [X] T008 Create package structure src/main/java/de/bluewhale/atprotofeed/framework/
+- [X] T009 [P] Create application.yml template with framework defaults in src/main/resources/
+- [X] T010 [P] Configure Log4j2.xml with structured logging patterns in src/main/resources/
 
 **Checkpoint**: Project compiles, all dependencies resolve, basic structure ready
 
@@ -36,23 +36,23 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Create Flyway migration script V1__initial_schema.sql in src/main/resources/db/migration/
-- [ ] T012 [P] Define PostReferenceEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [ ] T013 [P] Define PaginationCursorEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [ ] T014 [P] Define DeadLetterEventEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [ ] T015 [P] Create RepositoryEvent domain record in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
-- [ ] T016 [P] Create PostReference domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
-- [ ] T017 [P] Create FeedContext domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
-- [ ] T018 [P] Create FeedRequest DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
-- [ ] T019 [P] Create FeedResponse DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
-- [ ] T020 [P] Create FrameworkProperties configuration class in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [ ] T021 [P] Create RetryStrategy utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
-- [ ] T022 [P] Create ExponentialBackoff utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
-- [ ] T023 [P] Create custom exception classes (EventProcessingException, IndexingException) in src/main/java/de/bluewhale/atprotofeed/framework/exception/
-- [ ] T024 [P] Configure Spring Boot Actuator health endpoint in src/main/resources/application.yml
-- [ ] T025 [P] Configure Prometheus metrics endpoint in src/main/resources/application.yml
-- [ ] T026 Create FrameworkAutoConfiguration with component scanning in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [ ] T027 Create META-INF/spring.factories for auto-configuration discovery in src/main/resources/
+- [X] T011 Create Flyway migration script V1__initial_schema.sql in src/main/resources/db/migration/
+- [X] T012 [P] Define PostReferenceEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T013 [P] Define PaginationCursorEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T014 [P] Define DeadLetterEventEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T015 [P] Create RepositoryEvent domain record in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
+- [X] T016 [P] Create PostReference domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
+- [X] T017 [P] Create FeedContext domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
+- [X] T018 [P] Create FeedRequest DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
+- [X] T019 [P] Create FeedResponse DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
+- [X] T020 [P] Create FrameworkProperties configuration class in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T021 [P] Create RetryStrategy utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
+- [X] T022 [P] Create ExponentialBackoff utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
+- [X] T023 [P] Create custom exception classes (EventProcessingException, IndexingException) in src/main/java/de/bluewhale/atprotofeed/framework/exception/
+- [X] T024 [P] Configure Spring Boot Actuator health endpoint in src/main/resources/application.yml
+- [X] T025 [P] Configure Prometheus metrics endpoint in src/main/resources/application.yml
+- [X] T026 Create FrameworkAutoConfiguration with component scanning in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T027 Create META-INF/spring.factories for auto-configuration discovery in src/main/resources/
 
 **Checkpoint**: Foundation ready - database schema defined, domain objects created, configuration infrastructure in place
 

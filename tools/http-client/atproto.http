@@ -1,0 +1,19 @@
+### 1. Resolve handle (your account ID) to DID
+GET https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={{handle}}
+Accept: application/json
+
+### 2. Resolve your DID document
+GET https://plc.directory/{{did}}
+Accept: application/json
+
+### List all feed generators
+GET https://bsky.social/xrpc/com.atproto.repo.listRecords?repo={{did}}&collection=app.bsky.feed.generator
+Accept: application/json
+
+### List all your posts
+GET https://bsky.social/xrpc/com.atproto.repo.listRecords?repo={{did}}&collection=app.bsky.feed.post
+Accept: application/json
+
+### List your profile
+GET https://bsky.social/xrpc/com.atproto.repo.listRecords?repo={{did}}&collection=app.bsky.actor.profile
+Accept: application/json
