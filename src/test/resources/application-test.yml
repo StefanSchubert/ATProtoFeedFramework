@@ -1,0 +1,49 @@
+# Test Configuration for ATProtoFeedFramework
+spring:
+  application:
+    name: atproto-feed-framework-test
+
+  # Test database will be provided by Testcontainers MariaDB
+  # (datasource URL is automatically configured by @ServiceConnection)
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+# Framework test configuration
+atproto:
+  feed:
+    jetstream-url: wss://test.example.com/subscribe
+    feed-id: at://did:plc:test123/app.bsky.feed.generator/test-feed
+    reconnect:
+      initial-delay-seconds: 1
+      max-delay-seconds: 5
+      max-attempts: 3
+    retry:
+      max-attempts: 2
+      backoff-intervals: [100ms, 200ms]
+    cursor:
+      ttl-hours: 1
+      cleanup-interval-minutes: 15
+
+# Disable management endpoints for tests (we'll test them explicitly)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# Logging for tests
+logging:
+  level:
+    root: WARN
+    de.bluewhale.atprotofeed: INFO
+    org.flywaydb: DEBUG
+    org.testcontainers: INFO
+    org.springframework.jdbc: DEBUG

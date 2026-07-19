@@ -68,18 +68,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T028 [P] [US1] Write acceptance test for dependency resolution in tests/integration/test_framework_setup.java
-- [ ] T029 [P] [US1] Write acceptance test for successful initialization in tests/integration/test_framework_startup.java
-- [ ] T030 [P] [US1] Write acceptance test for health endpoint availability in tests/integration/test_health_check.java
+- [X] T028 [P] [US1] Write acceptance test for dependency resolution in tests/integration/test_framework_setup.java
+- [X] T029 [P] [US1] Write acceptance test for successful initialization in tests/integration/test_framework_startup.java
+- [X] T030 [P] [US1] Write acceptance test for health endpoint availability in tests/integration/test_health_check.java
 
 ### Implementation for User Story 1
 
-- [ ] T031 [US1] Implement FrameworkProperties with Jetstream URL and feed ID fields in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [ ] T032 [US1] Add @ConfigurationProperties validation annotations to FrameworkProperties
-- [ ] T033 [US1] Create framework health indicator in src/main/java/de/bluewhale/atprotofeed/framework/health/FrameworkHealthIndicator.java
-- [ ] T034 [US1] Register health indicator with Spring Boot Actuator
-- [ ] T035 [US1] Add startup banner with framework version logging in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [ ] T036 [US1] Update FrameworkAutoConfiguration to validate required properties on startup
+- [X] T031 [US1] Implement FrameworkProperties with Jetstream URL and feed ID fields in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T032 [US1] Add @ConfigurationProperties validation annotations to FrameworkProperties
+- [X] T033 [US1] Create framework health indicator in src/main/java/de/bluewhale/atprotofeed/framework/health/FrameworkHealthIndicator.java
+- [X] T034 [US1] Register health indicator with Spring Boot Actuator
+- [X] T035 [US1] Add startup banner with framework version logging in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T036 [US1] Update FrameworkAutoConfiguration to validate required properties on startup
 
 **Checkpoint**: Framework can be added to Maven project, configured, and starts successfully with health endpoint
 

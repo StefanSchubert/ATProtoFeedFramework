@@ -6,6 +6,8 @@ ATProtoFeedFramework is an open-source Java framework that enables developers to
 
 Instead of dealing with event ingestion, indexing, persistence and the ATProto Feed Generator API, developers can focus entirely on the business logic that makes their feed unique.
 
+![ATProtoFFProjectcontext.png](Assets/ATProtoFFProjectcontext.png)
+
 ---
 
 ## Developer Journey

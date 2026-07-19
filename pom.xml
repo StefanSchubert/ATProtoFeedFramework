@@ -46,9 +46,9 @@
         <lombok.version>1.18.46</lombok.version>
         <micrometer.prometheus.version>1.17.0</micrometer.prometheus.version>
         <owasp.plugin.version>12.2.2</owasp.plugin.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <flyway.version>11.1.0</flyway.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <dependencies>
@@ -92,8 +92,8 @@
 
         <!-- Flyway for database migrations -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
