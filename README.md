@@ -8,6 +8,16 @@ Instead of dealing with event ingestion, indexing, persistence and the ATProto F
 
 ![ATProtoFFProjectcontext.png](Assets/ATProtoFFProjectcontext.png)
 
+Frameworks are always abstract, how to find a suitable self-explaining logo? I finally came up with this one and Gemini helped
+to scheme my vision. The result, though beautiful is not self-explaining, so here some words a about the symbols:
+You see user around the world publishing a lot of social content on Bluesky using the underlying ATProto.
+Alltogether they are building a jet-stream in our atmosphere consisting of digital information. 
+The ATProtoFeedFramework allows to build up applications (like the lens), that focus on specific parts of information
+within the stream, thus building a specific kind of feed stream which in turn can be consumed by happy participants
+on the social network. 
+
+What do you think? Suitable for this project? Anyway I really like the illustration 🚀.
+
 ---
 
 ## Developer Journey
