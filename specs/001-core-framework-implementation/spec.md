@@ -4,9 +4,13 @@
 
 **Created**: 2026-07-18
 
-**Status**: Draft
+**Updated**: 2026-08-02 (Architecture Migration to Multi-Module v0.2.0)
+
+**Status**: In Progress
 
 **Input**: User description: "Implement the core ATProtoFeedFramework components to enable developers to build custom ATProto feed applications without implementing protocol infrastructure themselves."
+
+**⚠️ Architecture Note**: The framework has been migrated to a multi-module Maven structure (v0.2.0-SNAPSHOT). This spec remains valid - user scenarios are unchanged. Implementation details are reflected in plan.md and tasks.md.
 
 ## Clarifications
 

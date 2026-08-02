@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report:
-Version change: N/A → 1.0.0 (Initial Constitution)
-Modified principles: Initial creation with 5 core principles
-Added sections: Quality Standards (ISO 25010), Architecture Documentation
+Version change: 1.0.0 → 1.1.0 (Multi-Module Architecture Update)
+Modified principles: Updated Framework-First Architecture principle
+Added sections: Multi-Module Structure documentation
 Removed sections: None
-Templates requiring updates: ✅ No updates needed (initial creation)
+Templates requiring updates: ✅ spec.md, plan.md, tasks.md updated to reflect new structure
 Follow-up TODOs: None
 -->
 
@@ -37,16 +37,27 @@ All code and architecture decisions MUST align with ISO 25010 software quality c
 
 **Rationale**: ISO 25010 provides a comprehensive, industry-standard quality model that ensures the framework meets production-grade requirements for enterprise Java environments.
 
-### III. Framework-First Architecture
+### III. Framework-First Architecture (Multi-Module)
 
-The framework provides reusable infrastructure; developers implement feed-specific logic:
-- Clear separation between framework code and application code
-- Extension points MUST be well-defined and documented
-- Framework MUST NOT impose unnecessary constraints on feed logic
+The framework follows a **multi-module Maven architecture** separating contracts, implementation, and applications:
+
+**Module Structure**:
+- `atproto-feed-api` - Pure Java contracts (interfaces, DTOs, exceptions) - NO Spring dependencies
+- `atproto-feed-framework` - Spring Boot implementation of API contracts
+- `sample-feed-server` - Reference application demonstrating framework usage
+- Application modules - Developer-created feeds consuming the framework
+
+**Architectural Rules**:
+- Clear separation: API contracts ↔ Framework implementation ↔ Application code
+- Extension points MUST be defined in API module as interfaces
+- Framework module MUST NOT leak implementation details to API consumers
 - All framework components MUST be independently testable
-- Breaking changes to public APIs require MAJOR version increment
+- Breaking changes to API contracts require MAJOR version increment
+- API module uses `jakarta.annotation.@Nullable` (NOT Spring's `@Nullable`)
 
-**Rationale**: A clean framework/application boundary enables developers to focus on feed logic rather than protocol infrastructure, reducing complexity and accelerating feed development.
+**Migration**: See `MIGRATION.md` for upgrade path from monolithic v0.1 to multi-module v0.2
+
+**Rationale**: Multi-module architecture enables clean dependency management, allows applications to depend only on stable API contracts, supports independent versioning of API vs implementation, and follows Spring Boot starter conventions for library distribution.
 
 ### IV. Arc42 Documentation Standard
 
@@ -148,4 +159,10 @@ This constitution supersedes all other practices and conventions within the ATPr
 - MINOR: New principles or material expansions
 - PATCH: Clarifications, wording improvements, non-semantic refinements
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-07-18
+**Version**: 1.1.0 | **Ratified**: 2026-07-18 | **Last Amended**: 2026-08-02
+
+### Changelog
+
+**1.1.0** (2026-08-02): Updated Framework-First Architecture principle to document multi-module Maven structure (v0.2.0-SNAPSHOT). Added module separation rules, migration reference, and `jakarta.annotation` requirement for API module.
+
+**1.0.0** (2026-07-18): Initial constitution with 5 core principles (TDD, ISO 25010, Framework-First, Arc42, Production Readiness).

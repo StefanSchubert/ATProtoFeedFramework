@@ -1,10 +1,12 @@
 # Implementation Plan: Core Framework Implementation
 
-**Branch**: `001-core-framework-implementation` | **Date**: 2026-07-18 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-core-framework-implementation` | **Date**: 2026-07-18 | **Updated**: 2026-08-02 (v0.2.0) | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/001-core-framework-implementation/spec.md`
 
 **Note**: This plan translates the functional specification into technical design decisions, research needs, and implementation artifacts.
+
+**⚠️ Architecture Update (2026-08-02)**: Project migrated from monolithic structure to multi-module Maven architecture (v0.2.0-SNAPSHOT). See `MIGRATION.md` for details. All path references updated to reflect new module structure.
 
 ## Summary
 
@@ -142,62 +144,92 @@ specs/001-core-framework-implementation/
 
 ### Source Code (repository root)
 
+**⚠️ UPDATED (v0.2.0-SNAPSHOT)**: Multi-module Maven architecture replaces monolithic structure
+
 ```text
-# Java Framework with Maven structure (interface-first architecture)
+# Maven Multi-Module Project (v0.2.0-SNAPSHOT)
 
-src/
-├── main/
-│   ├── java/
-│   │   └── de/bluewhale/atprotofeed/
-│   │       ├── framework/                    # Framework core (interfaces-first)
-│   │       │   ├── eventsource/             # Event ingestion abstraction
-│   │       │   │   ├── EventSource.java     # Interface
-│   │       │   │   ├── JetstreamEventSource.java  # Jetstream implementation
-│   │       │   │   ├── RepositoryEvent.java
-│   │       │   │   └── EventProcessor.java
-│   │       │   ├── feed/                    # Feed provider abstraction
-│   │       │   │   ├── FeedProvider.java    # Interface (developer implements)
-│   │       │   │   ├── FeedContext.java
-│   │       │   │   └── PostReference.java
-│   │       │   ├── index/                   # Persistence layer
-│   │       │   │   ├── FeedIndex.java       # Interface
-│   │       │   │   ├── MariaDBFeedIndex.java
-│   │       │   │   └── entities/            # JPA entities
-│   │       │   │       ├── PostReferenceEntity.java
-│   │       │   │       └── CursorEntity.java
-│   │       │   ├── api/                     # ATProto Feed API
-│   │       │   │   ├── FeedController.java
-│   │       │   │   ├── dto/
-│   │       │   │   │   ├── FeedRequest.java
-│   │       │   │   │   └── FeedResponse.java
-│   │       │   │   └── validation/
-│   │       │   │       └── ATProtoValidator.java
-│   │       │   ├── resilience/              # Retry & error handling
-│   │       │   │   ├── RetryStrategy.java
-│   │       │   │   ├── DeadLetterQueue.java
-│   │       │   │   └── ExponentialBackoff.java
-│   │       │   └── config/                  # Framework configuration
-│   │       │       ├── FrameworkAutoConfiguration.java
-│   │       │       └── FrameworkProperties.java
-│   │       └── sample/                       # Sample application
-│   │           ├── SampleFeedApplication.java
-│   │           └── provider/
-│   │               └── SimpleFeedProvider.java
-│   └── resources/
-│       ├── application.yml                   # Default framework configuration
-│       ├── db/migration/                     # Flyway migrations
-│       │   └── V1__initial_schema.sql
-│       └── META-INF/
-│           └── spring.factories              # Spring Boot auto-configuration
+ATProtoFeedFramework/
+├── pom.xml                              # Parent POM with dependency management
+├── MIGRATION.md                         # Migration guide from v0.1 to v0.2
+│
+├── atproto-feed-api/                    # Pure Java contracts (no Spring dependencies)
+│   ├── pom.xml
+│   └── src/main/java/de/bluewhale/atprotofeed/api/
+│       ├── dto/                         # API data transfer objects
+│       │   ├── FeedPost.java
+│       │   ├── FeedRequest.java
+│       │   └── FeedResponse.java
+│       ├── eventsource/                 # Event source contracts
+│       │   ├── EventSource.java         # Interface
+│       │   ├── EventHandler.java
+│       │   ├── ConnectionStatus.java
+│       │   └── EventSourceException.java
+│       ├── feed/                        # Feed provider contracts
+│       │   ├── FeedProvider.java        # Interface (developer implements)
+│       │   ├── FeedContext.java
+│       │   ├── PostReference.java
+│       │   ├── CommitDetails.java
+│       │   └── RepositoryEvent.java
+│       ├── index/                       # Persistence contracts
+│       │   ├── FeedIndex.java           # Interface
+│       │   └── FeedQueryResult.java
+│       └── exception/                   # API exceptions
+│           ├── EventProcessingException.java
+│           └── IndexingException.java
+│
+├── atproto-feed-framework/              # Spring Boot implementation
+│   ├── pom.xml
+│   ├── src/main/java/de/bluewhale/atprotofeed/framework/
+│   │   ├── config/                      # Framework configuration
+│   │   │   ├── FrameworkAutoConfiguration.java
+│   │   │   ├── FrameworkProperties.java
+│   │   │   ├── FrameworkBanner.java
+│   │   │   └── NoOpEventSource.java
+│   │   ├── health/                      # Health indicators
+│   │   │   └── FrameworkHealthIndicator.java
+│   │   ├── index/                       # Persistence implementation
+│   │   │   ├── entities/                # JPA entities
+│   │   │   │   ├── PostReferenceEntity.java
+│   │   │   │   ├── PaginationCursorEntity.java
+│   │   │   │   ├── DeadLetterEventEntity.java
+│   │   │   │   ├── DlqStatus.java
+│   │   │   │   └── FailureReason.java
+│   │   │   └── mapper/                  # Entity mappers
+│   │   │       └── PostReferenceMapper.java
+│   │   └── resilience/                  # Retry & error handling
+│   │       ├── RetryStrategy.java
+│   │       └── ExponentialBackoff.java
+│   ├── src/main/resources/
+│   │   ├── application.yml              # Default framework configuration
+│   │   ├── log4j2.xml                   # Logging configuration
+│   │   ├── db/migration/                # Flyway migrations
+│   │   │   └── V1__initial_schema.sql
+│   │   └── META-INF/
+│   │       └── spring.factories         # Spring Boot auto-configuration
+│   └── src/test/java/de/bluewhale/atprotofeed/
+│       ├── AbstractIntegrationTest.java
+│       ├── TestApplication.java
+│       └── integration/
+│           ├── FrameworkSetupTest.java
+│           ├── FrameworkStartupTest.java
+│           └── HealthCheckTest.java
+│
+└── sample-feed-server/                   # Reference application
+    ├── pom.xml
+    ├── README.md
+    └── src/main/java/de/bluewhale/atprotofeed/sample/
+        ├── SampleFeedApplication.java
+        └── provider/
+            └── GermanTechFeedProvider.java
+```
 
-tests/
-├── unit/                                     # Fast unit tests (interfaces, logic)
-│   └── java/de/bluewhale/atprotofeed/
-│       ├── eventsource/
-│       │   ├── JetstreamEventSourceTest.java
-│       │   └── EventProcessorTest.java
-│       ├── feed/
-│       │   └── FeedProviderContractTest.java
+**Migration Notes**:
+- Old monolithic `src/` structure → Multi-module structure
+- API classes moved from `framework.*` → `api.*` packages
+- `@Nullable` changed from `org.springframework.lang` → `jakarta.annotation`
+- PostReference entity mapping extracted to `PostReferenceMapper`
+- See `MIGRATION.md` for complete migration guide
 │       ├── index/
 │       │   └── MariaDBFeedIndexTest.java
 │       ├── api/

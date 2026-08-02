@@ -4,6 +4,16 @@
 **Input**: Design documents from `/specs/001-core-framework-implementation/`  
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md
 
+**⚠️ ARCHITECTURE UPDATE (2026-08-02)**:  
+Project migrated to **multi-module Maven architecture (v0.2.0-SNAPSHOT)** on 2026-08-02.  
+All tasks T001-T036 marked as complete reflect the NEW structure:
+- `atproto-feed-api/` - Pure Java contracts (no Spring dependencies)
+- `atproto-feed-framework/` - Spring Boot implementation  
+- `sample-feed-server/` - Reference application
+
+**Path Updates**: All file paths in completed tasks have been updated to reflect module locations.  
+See `MIGRATION.md` for complete architectural changes.
+
 ## Format: `- [ ] [ID] [P?] [Story?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -13,20 +23,20 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic Maven structure
+**Purpose**: Project initialization and multi-module Maven structure
 
-- [X] T001 Create Maven module structure with framework and sample submodules in pom.xml
-- [X] T002 [P] Configure Java 25 compiler target in pom.xml
-- [X] T003 [P] Add Spring Boot 4.1.0 parent dependency to pom.xml
-- [X] T004 [P] Add core dependencies (Spring Data JPA, MariaDB, WebFlux) to pom.xml
-- [X] T005 [P] Add operational dependencies (Actuator, Micrometer, Log4j2) to pom.xml
-- [X] T006 [P] Configure JaCoCo plugin with 80% coverage threshold in pom.xml
-- [X] T007 [P] Configure OWASP dependency check plugin in pom.xml
-- [X] T008 Create package structure src/main/java/de/bluewhale/atprotofeed/framework/
-- [X] T009 [P] Create application.yml template with framework defaults in src/main/resources/
-- [X] T010 [P] Configure Log4j2.xml with structured logging patterns in src/main/resources/
+- [X] T001 Create Maven module structure with API, framework and sample submodules in parent pom.xml
+- [X] T002 [P] Configure Java 25 compiler target in parent pom.xml
+- [X] T003 [P] Add Spring Boot 4.1.0 parent dependency to parent pom.xml
+- [X] T004 [P] Add core dependencies (Spring Data JPA, MariaDB, WebFlux) to framework module pom.xml
+- [X] T005 [P] Add operational dependencies (Actuator, Micrometer, Log4j2) to framework module pom.xml
+- [X] T006 [P] Configure JaCoCo plugin with 80% coverage threshold in framework module pom.xml
+- [X] T007 [P] Configure OWASP dependency check plugin in parent pom.xml
+- [X] T008 Create package structure atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/ and atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/
+- [X] T009 [P] Create application.yml template with framework defaults in atproto-feed-framework/src/main/resources/
+- [X] T010 [P] Configure Log4j2.xml with structured logging patterns in atproto-feed-framework/src/main/resources/
 
-**Checkpoint**: Project compiles, all dependencies resolve, basic structure ready
+**Checkpoint**: Multi-module project compiles, all dependencies resolve, basic structure ready
 
 ---
 
@@ -36,25 +46,25 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T011 Create Flyway migration script V1__initial_schema.sql in src/main/resources/db/migration/
-- [X] T012 [P] Define PostReferenceEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [X] T013 [P] Define PaginationCursorEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [X] T014 [P] Define DeadLetterEventEntity JPA entity in src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
-- [X] T015 [P] Create RepositoryEvent domain record in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
-- [X] T016 [P] Create PostReference domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
-- [X] T017 [P] Create FeedContext domain record in src/main/java/de/bluewhale/atprotofeed/framework/feed/
-- [X] T018 [P] Create FeedRequest DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
-- [X] T019 [P] Create FeedResponse DTO record in src/main/java/de/bluewhale/atprotofeed/framework/api/dto/
-- [X] T020 [P] Create FrameworkProperties configuration class in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [X] T021 [P] Create RetryStrategy utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
-- [X] T022 [P] Create ExponentialBackoff utility in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
-- [X] T023 [P] Create custom exception classes (EventProcessingException, IndexingException) in src/main/java/de/bluewhale/atprotofeed/framework/exception/
-- [X] T024 [P] Configure Spring Boot Actuator health endpoint in src/main/resources/application.yml
-- [X] T025 [P] Configure Prometheus metrics endpoint in src/main/resources/application.yml
-- [X] T026 Create FrameworkAutoConfiguration with component scanning in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [X] T027 Create META-INF/spring.factories for auto-configuration discovery in src/main/resources/
+- [X] T011 Create Flyway migration script V1__initial_schema.sql in atproto-feed-framework/src/main/resources/db/migration/
+- [X] T012 [P] Define PostReferenceEntity JPA entity in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T013 [P] Define PaginationCursorEntity JPA entity in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T014 [P] Define DeadLetterEventEntity JPA entity in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/entities/
+- [X] T015 [P] Create RepositoryEvent domain record in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/feed/
+- [X] T016 [P] Create PostReference domain record in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/feed/
+- [X] T017 [P] Create FeedContext domain record in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/feed/
+- [X] T018 [P] Create FeedRequest DTO record in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/dto/
+- [X] T019 [P] Create FeedResponse DTO record in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/dto/
+- [X] T020 [P] Create FrameworkProperties configuration class in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T021 [P] Create RetryStrategy utility in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/resilience/
+- [X] T022 [P] Create ExponentialBackoff utility in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/resilience/
+- [X] T023 [P] Create custom exception classes (EventProcessingException, IndexingException) in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/exception/
+- [X] T024 [P] Configure Spring Boot Actuator health endpoint in atproto-feed-framework/src/main/resources/application.yml
+- [X] T025 [P] Configure Prometheus metrics endpoint in atproto-feed-framework/src/main/resources/application.yml
+- [X] T026 Create FrameworkAutoConfiguration with component scanning in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T027 Create META-INF/spring.factories for auto-configuration discovery in atproto-feed-framework/src/main/resources/
 
-**Checkpoint**: Foundation ready - database schema defined, domain objects created, configuration infrastructure in place
+**Checkpoint**: Foundation ready - database schema defined, domain objects created (API module), configuration infrastructure in place (framework module)
 
 ---
 
@@ -68,17 +78,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T028 [P] [US1] Write acceptance test for dependency resolution in tests/integration/test_framework_setup.java
-- [X] T029 [P] [US1] Write acceptance test for successful initialization in tests/integration/test_framework_startup.java
-- [X] T030 [P] [US1] Write acceptance test for health endpoint availability in tests/integration/test_health_check.java
+- [X] T028 [P] [US1] Write acceptance test for dependency resolution in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/FrameworkSetupTest.java
+- [X] T029 [P] [US1] Write acceptance test for successful initialization in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/FrameworkStartupTest.java
+- [X] T030 [P] [US1] Write acceptance test for health endpoint availability in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/HealthCheckTest.java
 
 ### Implementation for User Story 1
 
-- [X] T031 [US1] Implement FrameworkProperties with Jetstream URL and feed ID fields in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T031 [US1] Implement FrameworkProperties with Jetstream URL and feed ID fields in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
 - [X] T032 [US1] Add @ConfigurationProperties validation annotations to FrameworkProperties
-- [X] T033 [US1] Create framework health indicator in src/main/java/de/bluewhale/atprotofeed/framework/health/FrameworkHealthIndicator.java
+- [X] T033 [US1] Create framework health indicator in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/health/FrameworkHealthIndicator.java
 - [X] T034 [US1] Register health indicator with Spring Boot Actuator
-- [X] T035 [US1] Add startup banner with framework version logging in src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [X] T035 [US1] Add startup banner with framework version logging in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
 - [X] T036 [US1] Update FrameworkAutoConfiguration to validate required properties on startup
 
 **Checkpoint**: Framework can be added to Maven project, configured, and starts successfully with health endpoint
@@ -95,27 +105,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T037 [P] [US2] Write contract test for EventSource interface in tests/unit/test_eventsource_contract.java
-- [ ] T038 [P] [US2] Write contract test for EventHandler interface in tests/unit/test_eventhandler_contract.java
-- [ ] T039 [P] [US2] Write integration test for WebSocket connection in tests/integration/test_jetstream_connection.java
-- [ ] T040 [P] [US2] Write integration test for reconnection behavior in tests/integration/test_reconnection.java
-- [ ] T041 [P] [US2] Write integration test for graceful shutdown in tests/integration/test_shutdown.java
+- [ ] T037 [P] [US2] Write contract test for EventSource interface in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/eventsource/EventSourceContractTest.java
+- [ ] T038 [P] [US2] Write contract test for EventHandler interface in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/eventsource/EventHandlerContractTest.java
+- [ ] T039 [P] [US2] Write integration test for WebSocket connection in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/JetstreamConnectionTest.java
+- [ ] T040 [P] [US2] Write integration test for reconnection logic in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/ReconnectionTest.java
+- [ ] T041 [P] [US2] Write unit test for RepositoryEvent deserialization in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/eventsource/RepositoryEventDeserializationTest.java
 
 ### Implementation for User Story 2
 
-- [ ] T042 [P] [US2] Define EventSource interface in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
-- [ ] T043 [P] [US2] Define EventHandler functional interface in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
-- [ ] T044 [US2] Implement JetstreamEventSource with ReactorNettyWebSocketClient in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
-- [ ] T045 [US2] Add @PostConstruct connect() method to JetstreamEventSource
-- [ ] T046 [US2] Implement exponential backoff retry logic using RetryBackoffSpec in JetstreamEventSource
-- [ ] T047 [US2] Add @PreDestroy disconnect() method for graceful shutdown in JetstreamEventSource
-- [ ] T048 [US2] Create Jackson ObjectMapper configuration for RepositoryEvent deserialization in src/main/java/de/bluewhale/atprotofeed/framework/config/
-- [ ] T049 [US2] Add structured logging for connection events (connected, disconnected, reconnecting) in JetstreamEventSource
-- [ ] T050 [US2] Update FrameworkHealthIndicator to monitor EventSource connection status
-- [ ] T051 [US2] Create ConnectionStatusMetrics for Micrometer in src/main/java/de/bluewhale/atprotofeed/framework/metrics/
+- [ ] T042 [P] [US2] Define EventSource interface in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/eventsource/
+- [ ] T043 [P] [US2] Define EventHandler functional interface in atproto-feed-api/src/main/java/de/bluewhale/atprotofeed/api/eventsource/
+- [ ] T044 [US2] Implement JetstreamEventSource with ReactorNettyWebSocketClient in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
+- [ ] T045 [US2] Add WebSocket reconnection with ExponentialBackoff to JetstreamEventSource
+- [ ] T046 [US2] Implement graceful shutdown (close connection) in JetstreamEventSource
+- [ ] T047 [US2] Add connection lifecycle logging (INFO: connected, disconnected, reconnecting)
+- [ ] T048 [US2] Create Jackson ObjectMapper configuration for RepositoryEvent deserialization in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [ ] T049 [US2] Register JetstreamEventSource as @Bean in FrameworkAutoConfiguration
+- [ ] T050 [US2] Add NoOpEventSource stub implementation for testing without real Jetstream in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/config/
+- [ ] T051 [US2] Create ConnectionStatusMetrics for Micrometer in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/metrics/
 
-**Checkpoint**: Framework connects to Jetstream, receives events, handles reconnection, reports health status
-
+**Checkpoint**: Framework connects to Jetstream, receives events, reconnects on failure
 ---
 
 ## Phase 5: User Story 3 - Implement Custom Feed Logic (P1)
@@ -128,25 +137,25 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T052 [P] [US3] Write contract test for FeedProvider interface in tests/unit/test_feedprovider_contract.java
-- [ ] T053 [P] [US3] Write unit test for EventProcessor with mock FeedProvider in tests/unit/test_event_processor.java
-- [ ] T054 [P] [US3] Write integration test for retry strategy in tests/integration/test_retry_mechanism.java
-- [ ] T055 [P] [US3] Write integration test for dead-letter queue in tests/integration/test_dead_letter_queue.java
-- [ ] T056 [P] [US3] Write integration test for SimpleFeedProvider example in tests/integration/test_sample_provider.java
+- [ ] T052 [P] [US3] Write contract test for FeedProvider interface in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/test_feedprovider_contract.java
+- [ ] T053 [P] [US3] Write unit test for EventProcessor with mock FeedProvider in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/test_event_processor.java
+- [ ] T054 [P] [US3] Write integration test for retry strategy in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_retry_mechanism.java
+- [ ] T055 [P] [US3] Write integration test for dead-letter queue in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_dead_letter_queue.java
+- [ ] T056 [P] [US3] Write integration test for SimpleFeedProvider example in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_sample_provider.java
 
 ### Implementation for User Story 3
 
-- [ ] T057 [P] [US3] Define FeedProvider interface with getFeedId(), shouldIndex(), selectPosts(), enrichMetadata() in src/main/java/de/bluewhale/atprotofeed/framework/feed/
-- [ ] T058 [US3] Create EventProcessor that invokes FeedProvider.shouldIndex() on events in src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
+- [ ] T057 [P] [US3] Define FeedProvider interface with getFeedId(), shouldIndex(), selectPosts(), enrichMetadata() in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/feed/
+- [ ] T058 [US3] Create EventProcessor that invokes FeedProvider.shouldIndex() on events in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/eventsource/
 - [ ] T059 [US3] Wire EventProcessor to JetstreamEventSource via EventHandler in FrameworkAutoConfiguration
 - [ ] T060 [US3] Implement retry logic with 3 attempts (1s, 2s, 4s backoff) in EventProcessor
-- [ ] T061 [US3] Create DeadLetterQueue service for persistent event failures in src/main/java/de/bluewhale/atprotofeed/framework/resilience/
-- [ ] T062 [US3] Create DeadLetterRepository JPA repository in src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
+- [ ] T061 [US3] Create DeadLetterQueue service for persistent event failures in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/resilience/
+- [ ] T062 [US3] Create DeadLetterRepository JPA repository in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
 - [ ] T063 [US3] Add error handling and logging for FeedProvider exceptions in EventProcessor
-- [ ] T064 [US3] Create EventProcessingMetrics for Micrometer (events received, processed, failed) in src/main/java/de/bluewhale/atprotofeed/framework/metrics/
-- [ ] T065 [US3] Implement SimpleFeedProvider example (accepts all posts) in src/main/java/de/bluewhale/atprotofeed/sample/provider/
-- [ ] T066 [US3] Implement TechFeedProvider example (filters by keywords) in src/main/java/de/bluewhale/atprotofeed/sample/provider/
-- [ ] T067 [US3] Create sample application entry point SampleFeedApplication.java in src/main/java/de/bluewhale/atprotofeed/sample/
+- [ ] T064 [US3] Create EventProcessingMetrics for Micrometer (events received, processed, failed) in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/metrics/
+- [ ] T065 [US3] Implement SimpleFeedProvider example (accepts all posts) in sample-feed-server/src/main/java/de/bluewhale/atprotofeed/sample/provider/
+- [ ] T066 [US3] Implement TechFeedProvider example (filters by keywords) in sample-feed-server/src/main/java/de/bluewhale/atprotofeed/sample/provider/
+- [ ] T067 [US3] Create sample application entry point SampleFeedApplication.java in sample-feed-server/src/main/java/de/bluewhale/atprotofeed/sample/
 
 **Checkpoint**: Developers can implement FeedProvider, framework processes events with retry/DLQ, sample providers work
 
@@ -162,26 +171,26 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T068 [P] [US4] Write contract test for ATProto API response format in tests/unit/test_atproto_response.java
-- [ ] T069 [P] [US4] Write integration test for feed query endpoint in tests/integration/test_feed_api.java
-- [ ] T070 [P] [US4] Write integration test for pagination with cursor in tests/integration/test_pagination.java
-- [ ] T071 [P] [US4] Write integration test for empty feed response in tests/integration/test_empty_feed.java
-- [ ] T072 [P] [US4] Write integration test for expired cursor handling in tests/integration/test_expired_cursor.java
+- [ ] T068 [P] [US4] Write contract test for ATProto API response format in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/test_atproto_response.java
+- [ ] T069 [P] [US4] Write integration test for feed query endpoint in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_feed_api.java
+- [ ] T070 [P] [US4] Write integration test for pagination with cursor in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_pagination.java
+- [ ] T071 [P] [US4] Write integration test for empty feed response in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_empty_feed.java
+- [ ] T072 [P] [US4] Write integration test for expired cursor handling in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_expired_cursor.java
 
 ### Implementation for User Story 4
 
-- [ ] T073 [P] [US4] Create FeedController REST controller in src/main/java/de/bluewhale/atprotofeed/framework/api/
-- [ ] T074 [P] [US4] Create FeedService orchestration layer in src/main/java/de/bluewhale/atprotofeed/framework/api/
+- [ ] T073 [P] [US4] Create FeedController REST controller in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/api/
+- [ ] T074 [P] [US4] Create FeedService orchestration layer in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/api/
 - [ ] T075 [US4] Implement GET /xrpc/app.bsky.feed.getFeedSkeleton endpoint in FeedController
 - [ ] T076 [US4] Add request validation (feed URI, limit, cursor) in FeedController
 - [ ] T077 [US4] Implement cursor-based pagination logic in FeedService
-- [ ] T078 [US4] Create CursorService for cursor generation and validation in src/main/java/de/bluewhale/atprotofeed/framework/api/
-- [ ] T079 [US4] Create PaginationCursorRepository JPA repository in src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
+- [ ] T078 [US4] Create CursorService for cursor generation and validation in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/api/
+- [ ] T079 [US4] Create PaginationCursorRepository JPA repository in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
 - [ ] T080 [US4] Implement cursor expiry check (1 hour TTL) in CursorService
 - [ ] T081 [US4] Add ATProto response serialization with Jackson in FeedController
-- [ ] T082 [US4] Create ATProtoValidator for response validation in src/main/java/de/bluewhale/atprotofeed/framework/api/validation/
+- [ ] T082 [US4] Create ATProtoValidator for response validation in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/api/validation/
 - [ ] T083 [US4] Add error handling for invalid/expired cursors with proper ATProto error responses in FeedController
-- [ ] T084 [US4] Create FeedApiMetrics for Micrometer (requests, latency, errors) in src/main/java/de/bluewhale/atprotofeed/framework/metrics/
+- [ ] T084 [US4] Create FeedApiMetrics for Micrometer (requests, latency, errors) in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/metrics/
 - [ ] T085 [US4] Add structured logging for API requests in FeedController
 
 **Checkpoint**: Feed API endpoint works, pagination functions correctly, ATProto response format validated
@@ -198,24 +207,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T086 [P] [US5] Write contract test for FeedIndex interface in tests/unit/test_feedindex_contract.java
-- [ ] T087 [P] [US5] Write integration test for post indexing with Testcontainers MariaDB in tests/integration/test_indexing.java
-- [ ] T088 [P] [US5] Write integration test for query performance (100k posts) in tests/integration/test_query_performance.java
-- [ ] T089 [P] [US5] Write integration test for deduplication in tests/integration/test_deduplication.java
-- [ ] T090 [P] [US5] Write integration test for database connection failure in tests/integration/test_db_failure.java
+- [ ] T086 [P] [US5] Write contract test for FeedIndex interface in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/test_feedindex_contract.java
+- [ ] T087 [P] [US5] Write integration test for post indexing with Testcontainers MariaDB in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_indexing.java
+- [ ] T088 [P] [US5] Write integration test for query performance (100k posts) in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_query_performance.java
+- [ ] T089 [P] [US5] Write integration test for deduplication in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_deduplication.java
+- [ ] T090 [P] [US5] Write integration test for database connection failure in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_db_failure.java
 
 ### Implementation for User Story 5
 
-- [ ] T091 [P] [US5] Define FeedIndex interface with index(), queryFeed(), countPosts(), deleteOldPosts(), exists() in src/main/java/de/bluewhale/atprotofeed/framework/index/
-- [ ] T092 [US5] Create PostReferenceRepository JPA repository in src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
-- [ ] T093 [US5] Implement MariaDBFeedIndex with PostReferenceRepository in src/main/java/de/bluewhale/atprotofeed/framework/index/
+- [ ] T091 [P] [US5] Define FeedIndex interface with index(), queryFeed(), countPosts(), deleteOldPosts(), exists() in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/
+- [ ] T092 [US5] Create PostReferenceRepository JPA repository in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/repository/
+- [ ] T093 [US5] Implement MariaDBFeedIndex with PostReferenceRepository in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/index/
 - [ ] T094 [US5] Implement index() method with deduplication check (unique post URI constraint) in MariaDBFeedIndex
 - [ ] T095 [US5] Implement queryFeed() with reverse chronological sorting and pagination in MariaDBFeedIndex
 - [ ] T096 [US5] Add FeedProvider.selectPosts() invocation to FeedService after querying index
 - [ ] T097 [US5] Implement exists() method for deduplication in MariaDBFeedIndex
 - [ ] T098 [US5] Wire MariaDBFeedIndex to EventProcessor for indexing accepted posts
 - [ ] T099 [US5] Add database connection health check in FrameworkHealthIndicator
-- [ ] T100 [US5] Create IndexMetrics for Micrometer (posts indexed, query latency, index size) in src/main/java/de/bluewhale/atprotofeed/framework/metrics/
+- [ ] T100 [US5] Create IndexMetrics for Micrometer (posts indexed, query latency, index size) in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/metrics/
 - [ ] T101 [US5] Implement Flyway schema validation on startup in FrameworkAutoConfiguration
 - [ ] T102 [US5] Add structured logging for indexing operations in MariaDBFeedIndex
 
@@ -233,18 +242,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T103 [P] [US6] Write integration test for health endpoint in tests/integration/test_health_endpoint.java
-- [ ] T104 [P] [US6] Write integration test for readiness probe in tests/integration/test_readiness.java
-- [ ] T105 [P] [US6] Write integration test for Prometheus metrics endpoint in tests/integration/test_metrics_endpoint.java
-- [ ] T106 [P] [US6] Write integration test for degraded health status in tests/integration/test_degraded_health.java
+- [ ] T103 [P] [US6] Write integration test for health endpoint in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_health_endpoint.java
+- [ ] T104 [P] [US6] Write integration test for readiness probe in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_readiness.java
+- [ ] T105 [P] [US6] Write integration test for Prometheus metrics endpoint in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_metrics_endpoint.java
+- [ ] T106 [P] [US6] Write integration test for degraded health status in atproto-feed-framework/src/test/java/de/bluewhale/atprotofeed/integration/test_degraded_health.java
 
 ### Implementation for User Story 6
 
-- [ ] T107 [P] [US6] Create EventSourceHealthIndicator for connection status in src/main/java/de/bluewhale/atprotofeed/framework/health/
-- [ ] T108 [P] [US6] Create DatabaseHealthIndicator for MariaDB status in src/main/java/de/bluewhale/atprotofeed/framework/health/
-- [ ] T109 [P] [US6] Create FeedProviderHealthIndicator for custom provider validation in src/main/java/de/bluewhale/atprotofeed/framework/health/
+- [ ] T107 [P] [US6] Create EventSourceHealthIndicator for connection status in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/health/
+- [ ] T108 [P] [US6] Create DatabaseHealthIndicator for MariaDB status in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/health/
+- [ ] T109 [P] [US6] Create FeedProviderHealthIndicator for custom provider validation in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/health/
 - [ ] T110 [US6] Configure composite health indicator aggregation in FrameworkAutoConfiguration
-- [ ] T111 [US6] Register custom MeterBinder for all framework metrics in src/main/java/de/bluewhale/atprotofeed/framework/metrics/FrameworkMetrics.java
+- [ ] T111 [US6] Register custom MeterBinder for all framework metrics in atproto-feed-framework/src/main/java/de/bluewhale/atprotofeed/framework/metrics/FrameworkMetrics.java
 - [ ] T112 [US6] Add JVM memory metrics (heap, non-heap usage) via Micrometer
 - [ ] T113 [US6] Add thread pool metrics for event processing via Micrometer
 - [ ] T114 [US6] Configure Prometheus scraping endpoint in application.yml
@@ -261,7 +270,7 @@
 
 - [ ] T117 [P] Create comprehensive Javadoc for all public APIs (FeedProvider, EventSource, FeedIndex)
 - [ ] T118 [P] Add package-info.java documentation for each framework package
-- [ ] T119 [P] Write README.md for sample application in src/main/java/de/bluewhale/atprotofeed/sample/
+- [ ] T119 [P] Write README.md for sample application in sample-feed-server/src/main/java/de/bluewhale/atprotofeed/sample/
 - [ ] T120 [P] Create TROUBLESHOOTING.md guide with common issues in docs/
 - [ ] T121 [P] Update arc42 Building Block View (05) with implemented components in docs/arc42/
 - [ ] T122 [P] Write ADR for WebSocket library choice in docs/arc42/adr/ADR-001-websocket-library.md

@@ -1,8 +1,12 @@
 # 5. Building Block View
 
+**Last Updated**: 2026-08-02 (Multi-Module Architecture - v0.2.0)
+
 ## 5.1 Level 1: Whitebox View — ATProtoFeedFramework
 
 The ATProtoFeedFramework provides the technical foundation for building custom ATProto feed applications.
+
+**Architecture**: Multi-module Maven project (v0.2.0+) with clean separation of API contracts, framework implementation, and applications.
 
 The framework itself does not define the business logic of a feed. Instead, it provides reusable components for connecting to ATProto event sources, processing repository events, maintaining an application-specific index, and exposing a feed endpoint.
 
@@ -10,38 +14,47 @@ The following diagram shows the major building blocks:
 
 ```mermaid
 flowchart TD
-    subgraph Application["Feed Application"]
+    subgraph Application["Feed Application (sample-feed-server)"]
         FP["Feed Provider\n(Custom Feed Logic)"]
         IDX["Application Index\n(Custom Data Model)"]
     end
 
-    subgraph Framework["ATProtoFeedFramework"]
+    subgraph API["atproto-feed-api\n(Pure Java Contracts)"]
+        APII["Interfaces:\nFeedProvider, EventSource,\nFeedIndex"]
+        APID["DTOs:\nPostReference, FeedContext,\nFeedRequest/Response"]
+    end
+
+    subgraph Framework["atproto-feed-framework\n(Spring Boot Implementation)"]
         ES["Event Source Abstraction"]
         EP["Event Processing Pipeline"]
         STORE["Persistence Layer"]
-        API["ATProto Feed API"]
+        API_IMPL["ATProto Feed API"]
     end
 
     JS["ATProto Event Source\n(e.g. Jetstream)"]
 
+    Application --> API
+    Framework --> API
     JS --> ES
     ES --> EP
     EP --> STORE
     STORE --> IDX
     IDX --> FP
-    FP --> API
+    FP --> API_IMPL
 ```
 
 The main responsibility separation is:
 
-| Component | Responsibility |
-|---|---|
-| Feed Application | Defines why and how posts are selected for a specific feed |
-| Event Source Abstraction | Provides access to ATProto repository events |
-| Event Processing Pipeline | Converts incoming repository events into framework-internal events |
-| Persistence Layer | Stores processed data required for feed generation |
-| Feed Provider | Implements the feed selection algorithm |
-| ATProto Feed API | Exposes the generated feed according to ATProto requirements |
+| Component | Module | Responsibility |
+|---|---|---|
+| API Contracts | atproto-feed-api | Pure Java interfaces, DTOs, exceptions (no Spring) |
+| Framework Implementation | atproto-feed-framework | Spring Boot implementation of API contracts |
+| Feed Application | sample-feed-server (example) | Custom feed logic implementation |
+| Event Source Abstraction | atproto-feed-framework | Provides access to ATProto repository events |
+| Event Processing Pipeline | atproto-feed-framework | Converts incoming repository events into framework-internal events |
+| Persistence Layer | atproto-feed-framework | Stores processed data required for feed generation |
+| Feed Provider | Application (implements API) | Implements the feed selection algorithm |
+| ATProto Feed API | atproto-feed-framework | Exposes the generated feed according to ATProto requirements |
 
 ---
 
@@ -186,40 +199,41 @@ Feed clients do not communicate directly with the Event Source or persistence la
 
 ---
 
-# 5.3 Level 3: Application Example — SampleAppImpl
+# 5.3 Level 3: Application Example — sample-feed-server
 
-The repository will provide a minimal reference implementation demonstrating how developers create their own feed.
+**Updated**: The repository provides a minimal reference implementation in the `sample-feed-server` module demonstrating how developers create their own feed.
 
 The sample application intentionally contains only application-specific logic.
 
-Example structure:
+**Module structure (v0.2.0+)**:
 
 ```text
-SampleAppImpl
-
-    +-- configuration
-    |
-    +-- FeedProvider implementation
-    |
-    +-- domain model
-    |
-    +-- optional persistence extensions
+sample-feed-server/
+├── pom.xml                          # Depends on atproto-feed-framework
+├── README.md                        # Usage instructions
+└── src/main/java/de/bluewhale/atprotofeed/sample/
+    ├── SampleFeedApplication.java   # Spring Boot entry point
+    ├── provider/
+    │   └── GermanTechFeedProvider.java  # Example FeedProvider implementation
+    └── resources/
+        └── application.yml           # Application configuration
 ```
 
 The developer workflow should be:
 
-1. Add the ATProtoFeedFramework dependency
+1. Add the atproto-feed-framework dependency to pom.xml
 2. Configure the event source
-3. Implement a FeedProvider
+3. Implement a FeedProvider (from atproto-feed-api)
 4. Start the application
 5. Publish the feed endpoint
 
-The sample application should demonstrate that a feed developer does not need to implement:
+The sample application demonstrates that a feed developer does not need to implement:
 
-- ATProto protocol handling
-- Event stream management
-- Repository synchronization
-- Feed API handling
+- ATProto protocol handling (in framework)
+- Event stream management (in framework)
+- Repository synchronization (in framework)
+- Feed API handling (in framework)
+- Persistence layer (in framework)
 
 These capabilities are provided by the framework.
 
