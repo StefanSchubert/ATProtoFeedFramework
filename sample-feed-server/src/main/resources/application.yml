@@ -1,0 +1,68 @@
+# Sample Feed Server Configuration
+
+spring:
+  application:
+    name: sample-feed-server
+  
+  # Database Configuration
+  # For local development, use MariaDB or MySQL
+  datasource:
+    url: ${DATABASE_URL:jdbc:mariadb://localhost:3306/atproto_feed}
+    username: ${DATABASE_USER:feed_user}
+    password: ${DATABASE_PASSWORD:change_me}
+    driver-class-name: org.mariadb.jdbc.Driver
+  
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+# ATProto Feed Framework Configuration
+atproto:
+  feed:
+    # Jetstream WebSocket endpoint (US West is closest to Europe)
+    jetstream-url: ${JETSTREAM_URL:wss://jetstream2.us-west.bsky.network/subscribe}
+    
+    # Your feed identifier (replace with your actual DID after registration)
+    feed-id: ${FEED_ID:at://did:plc:example/app.bsky.feed.generator/german-tech}
+    
+    # Connection retry settings
+    reconnect:
+      initial-delay-seconds: 1
+      max-delay-seconds: 30
+      max-attempts: 9999
+    
+    # Event processing retry settings
+    retry:
+      max-attempts: 3
+      backoff-intervals: [1s, 2s, 4s]
+
+# Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+
+# Logging
+logging:
+  level:
+    root: INFO
+    de.bluewhale.atprotofeed: DEBUG
+    org.springframework: WARN

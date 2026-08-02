@@ -6,6 +6,60 @@ ATProtoFeedFramework is an open-source Java framework that enables developers to
 
 Instead of dealing with event ingestion, indexing, persistence and the ATProto Feed Generator API, developers can focus entirely on the business logic that makes their feed unique.
 
+## Architecture
+
+ATProtoFeedFramework is a **multi-module Maven project** designed as a reusable framework:
+
+```
+ATProtoFeedFramework/
+├── atproto-feed-api/          # Pure Java contracts
+├── atproto-feed-framework/    # Spring Boot implementation
+└── sample-feed-server/         # Reference implementation
+```
+
+### Modules
+
+#### atproto-feed-api
+
+Contains **stable public contracts** with zero Spring dependencies:
+
+- `FeedProvider` - Core interface for feed implementations
+- `FeedIndex` - Feed storage and querying
+- `EventSource` - Event stream subscription
+- Domain models and DTOs
+
+**Maven Coordinates:**
+```xml
+<dependency>
+    <groupId>de.bluewhale</groupId>
+    <artifactId>atproto-feed-api</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+</dependency>
+```
+
+#### atproto-feed-framework
+
+Contains the **reusable Spring Boot implementation**:
+
+- Jetstream client and connection management
+- JPA-based feed indexing
+- Spring Boot auto-configuration
+- Health indicators and metrics
+- Default implementations
+
+**Maven Coordinates:**
+```xml
+<dependency>
+    <groupId>de.bluewhale</groupId>
+    <artifactId>atproto-feed-framework</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+</dependency>
+```
+
+#### sample-feed-server
+
+A **complete working example** demonstrating framework usage. See [sample-feed-server/README.md](sample-feed-server/README.md) for details.
+
 ![ATProtoFFProjectcontext.png](Assets/ATProtoFFProjectcontext.png)
 
 Frameworks are always abstract, how to find a suitable self-explaining logo? I finally came up with this one and Gemini helped
@@ -56,9 +110,109 @@ The framework takes care of the protocol infrastructure so you can focus on your
 
 ## Quick Start
 
-A lightweight reference implementation is currently under development.
+### 1. Add Framework Dependency
 
-It will demonstrate how to build and publish a custom ATProto feed with only a small amount of application-specific code.
+```xml
+<dependency>
+    <groupId>de.bluewhale</groupId>
+    <artifactId>atproto-feed-framework</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
+</dependency>
+```
+
+### 2. Implement FeedProvider
+
+```java
+@Component
+public class MyFeedProvider implements FeedProvider {
+    
+    @Override
+    public String getFeedId() {
+        return "at://did:plc:example/app.bsky.feed.generator/my-feed";
+    }
+    
+    @Override
+    public boolean shouldIndex(PostReference post) {
+        // Your filtering logic
+        return true;
+    }
+    
+    @Override
+    public List<PostReference> selectPosts(FeedContext context) {
+        // Your ranking logic
+        return context.candidatePosts();
+    }
+}
+```
+
+### 3. Configure Application
+
+```yaml
+atproto:
+  feed:
+    jetstream-url: wss://jetstream2.us-west.bsky.network/subscribe
+    feed-id: at://did:plc:example/app.bsky.feed.generator/my-feed
+
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/atproto_feed
+    username: feed_user
+    password: your_password
+```
+
+### 4. Run
+
+```bash
+mvn spring-boot:run
+```
+
+The framework automatically:
+- Connects to Jetstream
+- Subscribes to repository events
+- Indexes posts matching your criteria
+- Exposes the Feed Generator API
+
+---
+
+## Building from Source
+
+### Prerequisites
+
+- Java 25+
+- Maven 3.9+
+- MariaDB 10.6+
+
+### Build All Modules
+
+```bash
+mvn clean verify
+```
+
+### Build Individual Modules
+
+```bash
+# API only
+mvn clean install -pl atproto-feed-api
+
+# Framework only
+mvn clean install -pl atproto-feed-framework
+
+# Sample application
+mvn clean package -pl sample-feed-server
+```
+
+### Run Sample Application
+
+```bash
+cd sample-feed-server
+mvn spring-boot:run
+```
+
+Or run the executable JAR:
+
+```bash
+java -jar sample-feed-server/target/sample-feed-server.jar
+```
 
 ---
 
@@ -116,9 +270,18 @@ ATProtoFeedFramework intentionally does **not** aim to become:
 
 ## Project Status
 
-The project is currently in the architectural design phase.
+The framework has completed **multi-module refactoring** (v0.2.0-SNAPSHOT):
 
-The current focus is on establishing a clean architecture, stable terminology and a sustainable extension model before implementing production code.
+✅ API layer separated into pure Java contracts  
+✅ Framework implementation available as Maven dependency  
+✅ Sample application demonstrating usage patterns  
+✅ Spring Boot auto-configuration enabled  
+
+**Next Steps:**
+- Implement JetstreamEventSource (WebSocket connection)
+- Implement MariaDBFeedIndex (persistence)
+- Add Feed Generator API REST endpoints
+- Metrics and monitoring integration
 
 ---
 
@@ -139,9 +302,21 @@ See the [`docs`](docs) directory for details.
 
 ## Sample Application
 
-A lightweight reference implementation will be provided as part of this repository.
+A complete reference implementation is available in the [`sample-feed-server`](sample-feed-server) module.
 
-Its purpose is to demonstrate the recommended way of building Feed Applications using ATProtoFeedFramework while keeping the example as small and easy to understand as possible.
+It demonstrates:
+- Spring Boot application setup
+- Custom FeedProvider implementation
+- Configuration patterns
+- Best practices
+
+See [sample-feed-server/README.md](sample-feed-server/README.md) for details.
+
+---
+
+## Migration Guide
+
+If you are upgrading from a pre-0.2.0 version, see [MIGRATION.md](MIGRATION.md) for breaking changes and upgrade instructions.
 
 ---
 
