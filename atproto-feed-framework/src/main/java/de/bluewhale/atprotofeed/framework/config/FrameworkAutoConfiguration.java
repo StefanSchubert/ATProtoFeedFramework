@@ -1,6 +1,9 @@
 package de.bluewhale.atprotofeed.framework.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bluewhale.atprotofeed.api.eventsource.EventSource;
+import de.bluewhale.atprotofeed.framework.eventsource.JetstreamEventSource;
+import de.bluewhale.atprotofeed.framework.eventsource.NoOpEventSource;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -9,16 +12,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 /**
  * Auto-configuration for ATProtoFeedFramework.
  * 
  * Enables the framework when atproto.feed.enabled is true (default).
  * Scans framework packages for components and enables property binding.
+ * 
+ * <p>Task: T049 - Register JetstreamEventSource as @Bean
  */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "atproto.feed", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(FrameworkProperties.class)
+@Import(JacksonConfiguration.class)
 @ComponentScan(basePackages = {
     "de.bluewhale.atprotofeed.framework.eventsource",
     "de.bluewhale.atprotofeed.framework.feed",
@@ -60,13 +67,25 @@ public class FrameworkAutoConfiguration {
     }
     
     /**
-     * Placeholder bean for EventSource until JetstreamEventSource is implemented.
-     * This will be replaced by the actual implementation in Phase 4.
+     * EventSource bean - uses JetstreamEventSource in production, can be overridden for testing.
      */
     @Bean
     @ConditionalOnMissingBean
-    public EventSource eventSource() {
-        return new NoOpEventSource(properties.getJetstreamUrl());
+    @ConditionalOnProperty(prefix = "atproto.feed", name = "event-source", havingValue = "jetstream", matchIfMissing = true)
+    public EventSource jetstreamEventSource(ObjectMapper objectMapper) {
+        log.info("Configuring Jetstream EventSource: {}", properties.getJetstreamUrl());
+        return new JetstreamEventSource(properties, objectMapper);
+    }
+    
+    /**
+     * NoOp EventSource for testing without real Jetstream connection.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "atproto.feed", name = "event-source", havingValue = "noop")
+    public EventSource noOpEventSource() {
+        log.warn("Using NoOpEventSource (test mode) - no real events will be received");
+        return new NoOpEventSource();
     }
 }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Builder;
 
 import java.time.Instant;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
  * Models repository events for post creation, update, and deletion.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
 public record RepositoryEvent(
     String did,
     @JsonProperty("time_us") long timeUs,
